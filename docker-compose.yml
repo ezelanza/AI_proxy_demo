@@ -1,0 +1,52 @@
+services:
+  nginx:
+    image: nginx:1.27.1-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/config/aiproxy.conf:/etc/nginx/aiproxy.conf
+      - ./docker/nginx/config/rbac.json:/etc/nginx/rbac.json
+      - ./docker/nginx/templates:/etc/nginx/templates
+      - ./docker/nginx/njs:/etc/nginx/njs
+      - ./docker/nginx/keys:/etc/nginx-ai-proxy/keys
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx-ai-proxy/keys
+    depends_on:
+      - creative-agent
+      - fun-agent
+      - supervisor
+  supervisor:
+    build: 
+      context: ./docker/supervisor
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PRINTER_BRIDGE_URL=${PRINTER_BRIDGE_URL:-http://host.docker.internal:8001}
+      - GATEWAY_URL=${GATEWAY_URL:-http://nginx:80}
+      - PRINTER_MODEL=${PRINTER_MODEL:-b1}
+      - PRINTER_CONNECTION=${PRINTER_CONNECTION:-usb}
+      - PRINTER_ADDRESS=/dev/cu.usbmodemB1_H917122401
+      - IMAGES_DIR=${IMAGES_DIR:-/app/images}
+      - SUPERVISOR_MODEL=${SUPERVISOR_MODEL:-openai:LLM_model}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./images:/app/images
+    # depends_on:
+    #   - nginx
+
+  creative-agent:
+    build: 
+      context: ./docker/agent_creative
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CREATIVE_AGENT_MODEL=${CREATIVE_AGENT_MODEL:-openai:LLM_model}
+
+  fun-agent:
+    build: 
+      context: ./docker/agent_fun
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FUN_AGENT_MODEL=${FUN_AGENT_MODEL:-openai:LLM_model}

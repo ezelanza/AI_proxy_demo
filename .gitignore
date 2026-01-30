@@ -39,3 +39,15 @@ wheels/
 
 # Logs
 *.log
+
+# Docker
+docker/supervisor/supervisor_tools_backup.py
+
+# API Keys (use templates instead)
+docker/nginx/keys/openai-key.conf
+
+# Uploaded/generated images (keep samples)
+images/upload_*.png
+images/upload_*.jpg
+images/upload_*.jpeg
+images/last_printed_label.png

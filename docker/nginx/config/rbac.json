@@ -1,0 +1,39 @@
+{
+  "users": {
+    "agent-user": {
+      "models": [
+        {
+          "name": "LLM_model"
+        }
+      ],
+      "max_tokens_per_request": 50000,
+      "rate_limit_per_minute": 60
+    }
+  },
+  "models": {
+    "LLM_model": {
+      "provider": "openai",
+      "location": "/openai",
+      "routing": {
+        "strategy": "smart",
+        "options": {
+          "cheap": "gpt-4o-mini",
+          "medium": "gpt-4o-mini",
+          "expensive": "gpt-4o"
+        }
+      }
+    },
+    "gpt-4o": {
+      "provider": "openai",
+      "location": "/openai"
+    },
+    "gpt-4o-mini": {
+      "provider": "openai",
+      "location": "/openai"
+    },
+    "gpt-3.5-turbo": {
+      "provider": "openai",
+      "location": "/openai"
+    }
+  }
+}
